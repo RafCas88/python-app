@@ -1,6 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QLineEdit, QPushButton, QProgressBar
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+import urllib.request
 
 
 class Downloader(QDialog):
@@ -9,26 +10,40 @@ class Downloader(QDialog):
 
        layout = QVBoxLayout()
 
-       url = QLineEdit()
-       save_location = QLineEdit()
-       progress = QProgressBar()
+       self.url = QLineEdit()
+       self.save_location = QLineEdit()
+       self.progress = QProgressBar()
        download = QPushButton("Download")
 
-       url.setPlaceholderText("URL")
-       save_location.setPlaceholderText("File save location")
+       self.url.setPlaceholderText("URL")
+       self.save_location.setPlaceholderText("File save location")
 
-       progress.setValue(0)
-       progress.setAlignment(Qt.AlignHCenter)
+       self.progress.setValue(0)
+       self.progress.setAlignment(Qt.AlignHCenter)
 
-       layout.addWidget(url)
-       layout.addWidget(save_location)
-       layout.addWidget(progress)
+       layout.addWidget(self.url)
+       layout.addWidget(self.save_location)
+       layout.addWidget(self.progress)
        layout.addWidget(download)
+
 
        self.setLayout(layout)
 
        self.setWindowTitle("PyDownloader")
        self.setFocus()
+
+       download.clicked.connect(self.download)
+
+    def download(self):
+       url = self.url.text()
+       save_location = self.save_location.text()
+       urllib.request.urlretrieve(url, save_location, self.report)
+
+    def report(self, blocknum, blocksize, totalsize):
+        readsofar = blocknum * blocksize
+        if totalsize > 0:
+           percent = readsofar * 100 / totalsize
+           self.progress.setValue(int(percent))
 
 app = QApplication(sys.argv)
 dl = Downloader()
